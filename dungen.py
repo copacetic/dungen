@@ -3,10 +3,9 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from OpenGL.arrays import vbo
 
-import numpy as np
+import numpy
 
 from time import sleep
-import math
 import random
 import sys
 import signal
@@ -51,7 +50,7 @@ def drawGrid(grid):
                       ]
           to_draw.extend(a_square)
 
-    the_vbo = vbo.VBO(np.array(to_draw, 'i'))
+    the_vbo = vbo.VBO(numpy.array(to_draw, 'i'))
     the_vbo.bind();
     glEnableClientState(GL_VERTEX_ARRAY)
     glVertexPointer(2, GL_INT, 0, the_vbo)
