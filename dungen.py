@@ -14,7 +14,7 @@ def signalHandler(signal, frame):
   print("SIGINT received")
   sys.exit()
 
-SIZE = 100
+SIZE = 200
 SCREEN_WIDTH, SCREEN_HEIGHT = 1200.0, 1200.0
 X_STEP_SIZE = SCREEN_WIDTH / SIZE
 Y_STEP_SIZE = SCREEN_HEIGHT / SIZE
@@ -84,7 +84,7 @@ def randomized_prims(grid):
   if SIZE <= 0:
     print("Error: SIZE is <= 0")
 
-  start = (0, 0)
+  start = (SIZE / 2, SIZE / 2)
   picked = grid[start[0]][start[0]]
   maze = set([start])
   walls = getWalls(grid, start)
