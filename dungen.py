@@ -14,7 +14,7 @@ def signalHandler(signal, frame):
   print("SIGINT received")
   sys.exit()
 
-SIZE = 50
+SIZE = 10
 SCREEN_WIDTH, SCREEN_HEIGHT = 600.0, 600.0
 X_STEP_SIZE = SCREEN_WIDTH / SIZE
 Y_STEP_SIZE = SCREEN_HEIGHT / SIZE
@@ -79,40 +79,48 @@ def getWalls(grid, cell):
       walls.append((newX, newY))
   return walls
 
-def modded_prims():
+def randomized_prims():
   if SIZE <= 0:
     print("Error: SIZE is <= 0")
 
   grid = [[Tile(occupied=True) for _x in range(SIZE)] for _y in range(SIZE)]
-  picked = grid[0][0]
-  maze = set([(0,0)])
-  walls = getWalls(grid, (0,0))
+  start = (0, 0)
+  picked = grid[start[0]][start[0]]
+  maze = set([start])
+  walls = getWalls(grid, start)
   while len(walls) > 0:
     randWall = random.sample(walls, 1)[0]
-    randDirection = random.sample(DIRECTIONS, 1)[0]
-    randNeighborX = randWall[0] + randDirection[0]
-    randNeighborY = randWall[1] + randDirection[1]
+    adjacentMazeTiles = 0
+    for direction in DIRECTIONS:
+      neighborX = randWall[0] + direction[0]
+      neighborY = randWall[1] + direction[1]
 
-    if isInboundCoord(randNeighborX, randNeighborY) and ((randNeighborX, randNeighborY) not in maze):
-      # add both the wall we picked and the wall in the rand direction to the maze
+      if isInboundCoord(neighborX, neighborY):
+        if ((neighborX, neighborY) in maze):
+          adjacentMazeTiles += 1
+        else:
+          continue
+
+    if adjacentMazeTiles is 1:
       maze.add(randWall)
-      maze.add((randNeighborX, randNeighborY))
 
-      walls.extend(getWalls(grid, (randNeighborX, randNeighborY)))
+      # set cells in maze as unoccupied, for rendering later
+      for cell in maze:
+        grid[cell[0]][cell[1]].setOccupancy(False)
 
-    # set cells in maze as unoccupied, for rendering later
-    for cell in maze:
-      grid[cell[0]][cell[1]].setOccupancy(False)
+      walls.extend(getWalls(grid, randWall))
+
     walls.remove(randWall)
     yield grid
 
 def initSimulation():
-  return modded_prims()
+  return randomized_prims()
 
 def display():
   gen = initSimulation()
   for grid in gen:
     drawGrid(grid)
+  sleep(10)
 
 def initGL():
   print("Initializing opengl...")
