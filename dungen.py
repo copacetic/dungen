@@ -14,11 +14,12 @@ def signalHandler(signal, frame):
   print("SIGINT received")
   sys.exit()
 
-SIZE = 10
-SCREEN_WIDTH, SCREEN_HEIGHT = 600.0, 600.0
+SIZE = 100
+SCREEN_WIDTH, SCREEN_HEIGHT = 1200.0, 1200.0
 X_STEP_SIZE = SCREEN_WIDTH / SIZE
 Y_STEP_SIZE = SCREEN_HEIGHT / SIZE
 DIRECTIONS = [(1,0),(0,1),(-1,0),(0,-1)]
+FULL_DIRECTIONS = [(1,0),(0,1),(-1,0),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)]
 
 class Tile:
   def __init__(self, occupied=None):
@@ -79,11 +80,10 @@ def getWalls(grid, cell):
       walls.append((newX, newY))
   return walls
 
-def randomized_prims():
+def randomized_prims(grid):
   if SIZE <= 0:
     print("Error: SIZE is <= 0")
 
-  grid = [[Tile(occupied=True) for _x in range(SIZE)] for _y in range(SIZE)]
   start = (0, 0)
   picked = grid[start[0]][start[0]]
   maze = set([start])
@@ -91,7 +91,7 @@ def randomized_prims():
   while len(walls) > 0:
     randWall = random.sample(walls, 1)[0]
     adjacentMazeTiles = 0
-    for direction in DIRECTIONS:
+    for direction in FULL_DIRECTIONS:
       neighborX = randWall[0] + direction[0]
       neighborY = randWall[1] + direction[1]
 
@@ -101,26 +101,22 @@ def randomized_prims():
         else:
           continue
 
-    if adjacentMazeTiles is 1:
+    if adjacentMazeTiles <= 2:
       maze.add(randWall)
 
-      # set cells in maze as unoccupied, for rendering later
-      for cell in maze:
-        grid[cell[0]][cell[1]].setOccupancy(False)
-
+      grid[randWall[0]][randWall[1]].setOccupancy(False)
       walls.extend(getWalls(grid, randWall))
 
     walls.remove(randWall)
-    yield grid
+  return grid
 
-def initSimulation():
-  return randomized_prims()
+def initSimulation(grid):
+  return randomized_prims(grid)
 
 def display():
-  gen = initSimulation()
-  for grid in gen:
-    drawGrid(grid)
-  sleep(10)
+  g = [[Tile(occupied=True) for _x in range(SIZE)] for _y in range(SIZE)]
+  g = initSimulation(g)
+  drawGrid(g)
 
 def initGL():
   print("Initializing opengl...")
